@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import "@/assets/globals.css";
 import Link from "next/link";
+import { navItems } from "@/constants";
 
 export const metadata: Metadata = {
   title: "Root title",
@@ -15,15 +16,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <nav className="space-x-1">
-          <Link className="text-blue-500 hover:underline" href="/">
-            Home
-          </Link>
-          <Link className="text-blue-500 hover:underline" href="/users">
-            Users
-          </Link>
-        </nav>
-        <main>{children}</main>
+        <div className="p-8">
+          <nav className="space-x-2 flex items-center">
+            {navItems.map((item) => (
+              <Link key={item.label} className="text-blue-500 hover:underline" href={item.link}>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          <main>{children}</main>
+        </div>
       </body>
     </html>
   );
