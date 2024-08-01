@@ -1,23 +1,27 @@
 # Use the official Node.js image
-FROM node:20-alpine
-
-# Set the working directory inside the container
+ARG NODE_VERSION=21.7.1
+FROM node:${NODE_VERSION}-alpine as base
 WORKDIR /app
 
-# Copy package.json and yarn.lock (if available)
-COPY package.json yarn.lock ./
+FROM base as deps
+RUN --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=yarn.lock,target=yarn.lock \
+    --mount=type=cache,target=/root/.yarn \
+    yarn install --production --frozen-lockfile
 
-# Install dependencies using Yarn
-RUN yarn install --frozen-lockfile
-
-# Copy the rest of the application code
+FROM deps as build
+RUN --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=yarn.lock,target=yarn.lock \
+    --mount=type=cache,target=/root/.yarn \
+    yarn install --frozen-lockfile
 COPY . .
-
-# Build the Next.js app
 RUN yarn build
 
-# Expose the port the app runs on
+FROM base as final
+ENV NODE_ENV production
+USER node
+COPY package.json .
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/src ./src
 EXPOSE 3000
-
-# Command to run the app
 CMD ["yarn", "start"]
