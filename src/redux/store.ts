@@ -1,9 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { userReducer } from './features/userSlice';
+import { chatRoomReducer } from './features/chatRoomSlice';
 
 export const makeStore = () => {
   return configureStore({
-    reducer: { user: userReducer },
+    reducer: { user: userReducer, chatRoom: chatRoomReducer },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({ serializableCheck: false }),
   });
